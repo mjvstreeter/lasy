@@ -1,7 +1,9 @@
 import numpy as np
 from axiprop.lib import PropagatorFFT2, PropagatorResampling
 from scipy.constants import c
+from inspect import signature
 
+from importlib.metadata.diagnose import inspect
 from lasy.utils.grid import Grid, time_axis_indx
 from lasy.utils.laser_utils import (
     normalize_average_intensity,
@@ -205,7 +207,12 @@ class Laser:
             x, y, omega = np.meshgrid(
                 self.grid.axes[0], self.grid.axes[1], self.omega_1d, indexing="ij"
             )
-            spectral_field *= optical_element.amplitude_multiplier(x, y, omega)
+            sig = signature(optical_element.amplitude_multiplier)
+            p_names = [param.name for param in sig.parameters.values()]
+            if 'field' in p_names:
+                spectral_field = optical_element.amplitude_multiplier(x, y, omega, field=spectral_field)
+            else:
+                spectral_field *= optical_element.amplitude_multiplier(x, y, omega)
         self.grid.set_spectral_field(spectral_field)
 
     def propagate(
@@ -474,7 +481,12 @@ class Laser:
         
         if hasattr(self, 'optical_element_list'):
             for optical_element in self.optical_element_list:
-                E_xyomega *= optical_element.amplitude_multiplier(x, y, o)
+                sig = signature(optical_element.amplitude_multiplier)
+                p_names = [param.name for param in sig.parameters.values()]
+                if 'field' in p_names:
+                    E_xyomega = optical_element.amplitude_multiplier(x, y, o, field=E_xyomega)
+                else:
+                    E_xyomega *= optical_element.amplitude_multiplier(x, y, o)
 
 
         # angular frequency steps
