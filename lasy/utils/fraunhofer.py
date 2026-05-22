@@ -12,15 +12,19 @@ def calc_focus_fraunhofer(E_x,dx=1,axis=0,N_pad=None,unpad_result=True):
         N_x = np.shape(E_x)[axis]
     else:
         N_x = N_pad
-    E_u = calc_ifft_pad(E_x,axis=axis,N_pad=N_pad,unpad_result=unpad_result)*dx*N_x
+    E_u = calc_fft_pad(E_x,axis=axis,N_pad=N_pad,unpad_result=unpad_result,inverse=True)*dx*N_x
     return E_u
 
-def calc_ifft_pad(E_x,axis=0,N_pad=None,unpad_result=True):
+def calc_fft_pad(E_x,axis=0,N_pad=None,unpad_result=True,inverse=False):
     N_input = np.shape(E_x)[axis]
     if N_pad is not None:
         E_x = pad_array(E_x,N_pad,axis=axis)
     
-    E_u = (fftshift(ifft(ifftshift(E_x,axes=axis),axis=axis),axes=axis))
+    if inverse:
+        E_u = (fftshift(ifft(ifftshift(E_x,axes=axis),axis=axis),axes=axis))
+    else:
+        E_u = (fftshift(fft(ifftshift(E_x,axes=axis),axis=axis),axes=axis))
+        
     if unpad_result:
         E_u = unpad_array(E_u,N_input,axis=axis)
     return E_u
