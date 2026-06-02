@@ -37,7 +37,7 @@ class PolynomialSpectralPhase(OpticalElement):
         Central angular frequency about which the polynomial is expanded
     """
 
-    def __init__(self, omega0, gdd=0, tod=0, fod=0, delay=0):
+    def __init__(self, omega0, gdd=0.0, tod=0.0, fod=0.0, delay=0.0):
         self.omega0 = omega0
         self.gdd = gdd
         self.tod = tod
